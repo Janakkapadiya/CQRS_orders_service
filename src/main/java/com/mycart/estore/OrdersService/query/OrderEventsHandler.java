@@ -7,8 +7,10 @@ package com.mycart.estore.OrdersService.query;
 
 import com.mycart.estore.OrdersService.core.data.OrderEntity;
 import com.mycart.estore.OrdersService.core.data.OrdersRepository;
+import com.mycart.estore.OrdersService.core.events.OrderApprovedEvent;
 import com.mycart.estore.OrdersService.core.events.OrderCreatedEvent;
 
+import com.mycart.estore.OrdersService.core.events.OrderRejectedEvent;
 import org.axonframework.config.ProcessingGroup;
 import org.axonframework.eventhandling.EventHandler;
 import org.springframework.beans.BeanUtils;
@@ -25,10 +27,30 @@ public class OrderEventsHandler {
     }
 
     @EventHandler
-    public void on(OrderCreatedEvent event) throws Exception {
+    public void on(OrderCreatedEvent event){
         OrderEntity orderEntity = new OrderEntity();
         BeanUtils.copyProperties(event, orderEntity);
  
         ordersRepository.save(orderEntity);
     }
+
+    @EventHandler
+    public void on(OrderApprovedEvent orderApprovedEvent){
+        OrderEntity order = ordersRepository.findByOrderId(orderApprovedEvent.getOrderId());
+
+        if(order == null) {
+            return;
+        }
+        order.setOrderStatus(order.getOrderStatus());
+
+        ordersRepository.save(order);
+    }
+
+    @EventHandler
+    public void on(OrderRejectedEvent orderRejectedEvent){
+        OrderEntity order = ordersRepository.findByOrderId(orderRejectedEvent.getOrderId());
+        order.setOrderStatus(orderRejectedEvent.getOrderStatus());
+        ordersRepository.save(order);
+    }
+
 }

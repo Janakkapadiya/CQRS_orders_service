@@ -14,21 +14,18 @@ import org.springframework.context.annotation.Import;
 
 @EnableDiscoveryClient
 @SpringBootApplication
-@Import({ xstream.class })
+@Import({xstream.class})
 public class OrdersServiceApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(OrdersServiceApplication.class, args);
-	}
-	
-	@Bean
-	public DeadlineManager deadlineManager(Configuration configuration, 
-			SpringTransactionManager transactionManager) {
-	
-		return SimpleDeadlineManager.builder()
-				.scopeAwareProvider(new ConfigurationScopeAwareProvider(configuration))
-                .transactionManager(transactionManager)
-                .build();
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(OrdersServiceApplication.class, args);
+    }
 
+    @Bean
+    public DeadlineManager deadlineManager(Configuration configuration,SpringTransactionManager transactionManager) {
+       return SimpleDeadlineManager.builder()
+               .scopeAwareProvider(new ConfigurationScopeAwareProvider(configuration))
+               .transactionManager(transactionManager)
+               .build();
+    }
 }
